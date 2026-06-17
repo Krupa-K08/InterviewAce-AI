@@ -1,7 +1,64 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../layouts/AuthLayout";
 
 function Login() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setError("");
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "http://localhost:5000/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      // Store authentication data
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      alert(`Welcome back, ${data.user.fullName}! 🎉`);
+
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthLayout
       leftContent={
@@ -76,17 +133,34 @@ function Login() {
           Welcome back to InterviewAce AI.
         </p>
 
-        <form className="mt-10 space-y-5">
+        {error && (
+          <p className="mt-4 text-red-400 text-sm">
+            {error}
+          </p>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className="mt-10 space-y-5"
+        >
 
           <input
             type="email"
+            name="email"
             placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            required
             className="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
           />
 
           <input
             type="password"
+            name="password"
             placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
             className="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
           />
 
@@ -101,6 +175,7 @@ function Login() {
 
           <button
             type="submit"
+            disabled={loading}
             className="
               w-full py-4 rounded-2xl
               bg-gradient-to-r
@@ -110,9 +185,10 @@ function Login() {
               hover:scale-[1.02]
               active:scale-[0.98]
               transition-all
+              disabled:opacity-70
             "
           >
-            Sign In
+            {loading ? "Signing In..." : "Sign In"}
           </button>
 
         </form>

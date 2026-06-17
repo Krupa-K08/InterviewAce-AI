@@ -1,7 +1,71 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../layouts/AuthLayout";
 
 function Signup() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setError("");
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "http://localhost:5000/api/auth/signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fullName: formData.fullName,
+            email: formData.email,
+            password: formData.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      alert("Account created successfully! 🎉");
+
+      navigate("/login");
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthLayout
       leftContent={
@@ -73,33 +137,59 @@ function Signup() {
           Start your InterviewAce AI journey.
         </p>
 
-        <form className="mt-10 space-y-5">
+        {error && (
+          <p className="mt-4 text-red-400 text-sm">
+            {error}
+          </p>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className="mt-10 space-y-5"
+        >
           <input
             type="text"
+            name="fullName"
             placeholder="Full Name"
+            value={formData.fullName}
+            onChange={handleChange}
+            required
             className="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
           />
 
           <input
             type="email"
+            name="email"
             placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            required
             className="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
           />
 
           <input
             type="password"
+            name="password"
             placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
             className="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
           />
 
           <input
             type="password"
+            name="confirmPassword"
             placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
             className="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
           />
 
           <button
             type="submit"
+            disabled={loading}
             className="
               w-full py-4 rounded-2xl
               bg-gradient-to-r
@@ -109,9 +199,10 @@ function Signup() {
               hover:scale-[1.02]
               active:scale-[0.98]
               transition-all
+              disabled:opacity-70
             "
           >
-            Create Account
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
