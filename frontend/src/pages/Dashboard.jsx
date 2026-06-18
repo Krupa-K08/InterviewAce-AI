@@ -1,5 +1,7 @@
 import Sidebar from "../components/Dashboard/Sidebar";
 import Header from "../components/Dashboard/Header";
+import DailyRecommendation from "../components/Dashboard/DailyRecommendation";
+import KPICards from "../components/Dashboard/KPICards";
 
 function Dashboard() {
   // Temporary mock data
@@ -36,7 +38,8 @@ function Dashboard() {
           </div>
         ) : (
           <div className="mt-8">
-            {/* Components will come here */}
+            <DailyRecommendation />
+            <KPICards />
           </div>
         )}
 

@@ -1,54 +1,29 @@
-function Header({ user }) {
+function Header() {
   return (
-    <div
+    <header
       className="
         bg-white
-        rounded-3xl
-        border border-slate-200
-        px-8 py-6
-        flex flex-col md:flex-row
-        justify-between
-        items-start md:items-center
-        gap-6
+        rounded-[32px]
+        px-10 py-8
+        flex items-center justify-between
+        shadow-sm
       "
     >
-      {/* Left */}
-      <div>
+      <h1 className="text-3xl font-bold text-slate-800">
+        Welcome Back, Krupa! 👋
+      </h1>
 
-        <h1 className="text-4xl font-bold text-slate-800">
-          Welcome Back, {user.name}! 👋
-        </h1>
-
-        <p className="text-slate-500 mt-2 text-lg">
-          Preparing for{" "}
-          <span className="font-semibold text-indigo-600">
-            {user.targetCompany}
-          </span>{" "}
-          interview in{" "}
-          <span className="font-semibold">
-            {user.interviewDays} days
-          </span>.
-        </p>
-
-      </div>
-
-      {/* Right */}
-      <div className="flex items-center gap-4">
-
-        <div
-          className="
-            px-5 py-3 rounded-2xl
-            bg-orange-100
-            text-orange-600
-            font-semibold
-          "
-        >
-          🔥 {user.streak} Day Streak
+      <div className="flex items-center gap-6">
+        {/* Streak */}
+        <div className="text-2xl font-bold text-purple-700">
+          8🔥
         </div>
 
+        {/* Logout */}
         <button
           className="
-            px-6 py-3 rounded-2xl
+            px-8 py-4
+            rounded-2xl
             bg-gradient-to-r
             from-indigo-600
             to-purple-600
@@ -61,9 +36,8 @@ function Header({ user }) {
         >
           Logout
         </button>
-
       </div>
-    </div>
+    </header>
   );
 }
 

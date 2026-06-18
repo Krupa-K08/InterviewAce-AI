@@ -6,8 +6,9 @@ import {
   BarChart3,
   Settings,
   User,
-  LogOut,
 } from "lucide-react";
+
+import { NavLink } from "react-router-dom";
 
 function Sidebar() {
   return (
@@ -16,102 +17,99 @@ function Sidebar() {
         w-72
         bg-white
         border-r border-slate-200
-        flex flex-col
-        justify-between
+        flex flex-col justify-between
         min-h-screen
-        px-6 py-8
+        px-2 py-4
       "
     >
-      {/* Top */}
       <div>
-
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-12">
+        <div className="flex items-center gap-2 mb-8">
           <img
             src="/logo.png"
             alt="InterviewAce AI"
-            className="h-12 w-12"
+            className="h-25 w-25 object-contain"
           />
 
-          <div>
-            <h1 className="font-bold text-slate-800 text-lg">
-              InterviewAce AI
-            </h1>
-
-            <p className="text-sm text-slate-500">
-              Interview Prep
-            </p>
-          </div>
+          <h1 className="font-bold text-xl text-slate-900">
+            InterviewAce AI
+          </h1>
         </div>
 
         {/* Navigation */}
         <nav className="space-y-2">
 
           <SidebarItem
+            to="/dashboard"
             icon={<LayoutDashboard size={20} />}
             label="Dashboard"
-            active
           />
 
           <SidebarItem
+            to="/mock-interviews"
             icon={<Mic size={20} />}
             label="Mock Interviews"
           />
 
           <SidebarItem
+            to="/resume-analyzer"
             icon={<FileText size={20} />}
             label="Resume Analyzer"
           />
 
           <SidebarItem
+            to="/career-roadmaps"
             icon={<Route size={20} />}
             label="Career Roadmaps"
           />
 
           <SidebarItem
+            to="/analytics"
             icon={<BarChart3 size={20} />}
             label="Analytics"
           />
-
         </nav>
       </div>
 
-      {/* Bottom */}
-      <div className="space-y-2">
-
+      <div className="space-y-1">
         <SidebarItem
+          to="/profile"
           icon={<User size={20} />}
           label="Profile"
         />
 
         <SidebarItem
+          to="/settings"
           icon={<Settings size={20} />}
           label="Settings"
         />
-
       </div>
     </aside>
   );
 }
 
-function SidebarItem({ icon, label, active }) {
+function SidebarItem({ to, icon, label }) {
   return (
-    <button
-      className={`
-        w-full flex items-center gap-3 px-4 py-3 rounded-2xl
-        transition-all text-left
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `
+        flex items-center gap-3
+        px-5 py-4
+        rounded-2xl
+        transition-all
+        font-medium
         ${
-          active
+          isActive
             ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
-            : "text-slate-600 hover:bg-slate-100"
+            : "text-slate-600 hover:bg-purple-50 hover:text-purple-700"
         }
-      `}
+      `
+      }
     >
       {icon}
-      <span className="font-medium">
-        {label}
-      </span>
-    </button>
+      <span>{label}</span>
+    </NavLink>
   );
 }
 
