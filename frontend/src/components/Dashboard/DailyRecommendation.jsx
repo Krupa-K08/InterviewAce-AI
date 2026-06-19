@@ -3,48 +3,69 @@ function DailyRecommendation() {
     <div
       className="
         mt-8
-        bg-white
+        bg-gradient-to-r
+        from-purple-600
+        via-indigo-400
+        to-purple-400
         rounded-3xl
-        border border-slate-200
+        shadow-lg
         p-8
-        shadow-sm
-        flex flex-col md:flex-row
-        md:items-center
-        md:justify-between
-        gap-6
+        text-white
       "
     >
-      <div>
-        <p className="text-sm font-semibold text-indigo-600 uppercase tracking-wide">
-          🎯 Today's Recommendation
-        </p>
+      <h2 className="text-3xl font-bold">
+        🤖 AI Coach
+      </h2>
 
-        <h2 className="mt-2 text-2xl font-bold text-slate-800">
-          Practice the STAR Method
-        </h2>
+      <p className="mt-3 text-purple-100 leading-relaxed max-w-3xl">
+        Personalized interview guidance will unlock as you continue
+        your InterviewAce journey. Complete the steps below to activate
+        real AI-powered recommendations tailored specifically to you.
+      </p>
 
-        <p className="mt-3 text-slate-500 max-w-2xl leading-relaxed">
-          Strengthen your behavioural interview answers by practicing
-          Situation, Task, Action, and Result based responses.
-        </p>
+      <div className="mt-6 flex flex-wrap gap-4">
+        <div
+          className="
+            bg-white/10
+            backdrop-blur-sm
+            rounded-2xl
+            px-5 py-3
+          "
+        >
+          Resume Analysis:
+          <span className="font-semibold ml-2">
+            Pending ⭕
+          </span>
+        </div>
+
+        <div
+          className="
+            bg-white/10
+            backdrop-blur-sm
+            rounded-2xl
+            px-5 py-3
+          "
+        >
+          Mock Interview:
+          <span className="font-semibold ml-2">
+            Pending ⭕
+          </span>
+        </div>
       </div>
 
       <button
         className="
-          px-6 py-4
-          rounded-2xl
-          bg-gradient-to-r
-          from-indigo-600
-          to-purple-600
-          text-white
+          mt-6
+          bg-white
+          text-purple-700
           font-semibold
+          px-6 py-3
+          rounded-2xl
           hover:scale-105
           transition-all
-          shadow-lg
-          whitespace-nowrap
         "
       >
-        👉 Start Practice
+        Upload Resume to Unlock AI
       </button>
     </div>
   );

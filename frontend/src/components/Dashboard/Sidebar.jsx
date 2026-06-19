@@ -8,9 +8,7 @@ import {
   User,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
-
-function Sidebar() {
+function Sidebar({ activeSection, setActiveSection })  {
   return (
     <aside
       className="
@@ -40,31 +38,41 @@ function Sidebar() {
         <nav className="space-y-2">
 
           <SidebarItem
-            to="/dashboard"
+          section="dashboard"
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
             icon={<LayoutDashboard size={20} />}
             label="Dashboard"
           />
 
           <SidebarItem
-            to="/mock-interviews"
+           section="mock-interviews"
+           activeSection={activeSection}
+          setActiveSection={setActiveSection}
             icon={<Mic size={20} />}
             label="Mock Interviews"
           />
 
           <SidebarItem
-            to="/resume-analyzer"
+            section="resume"
+            activeSection={activeSection}
+          setActiveSection={setActiveSection}
             icon={<FileText size={20} />}
             label="Resume Analyzer"
           />
 
           <SidebarItem
-            to="/career-roadmaps"
+            section="roadmaps"
+            activeSection={activeSection}
+          setActiveSection={setActiveSection}
             icon={<Route size={20} />}
             label="Career Roadmaps"
           />
 
           <SidebarItem
-            to="/analytics"
+            section="analytics"
+            activeSection={activeSection}
+          setActiveSection={setActiveSection}
             icon={<BarChart3 size={20} />}
             label="Analytics"
           />
@@ -73,13 +81,17 @@ function Sidebar() {
 
       <div className="space-y-1">
         <SidebarItem
-          to="/profile"
+          section="profile"
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
           icon={<User size={20} />}
           label="Profile"
         />
 
         <SidebarItem
-          to="/settings"
+          section="settings"
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
           icon={<Settings size={20} />}
           label="Settings"
         />
@@ -88,28 +100,33 @@ function Sidebar() {
   );
 }
 
-function SidebarItem({ to, icon, label }) {
+function SidebarItem({
+  section,
+  activeSection,
+  setActiveSection,
+  icon,
+  label,
+}) {
   return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `
+    <button
+      onClick={() => setActiveSection(section)}
+      className={`
+        w-full
         flex items-center gap-3
         px-5 py-4
         rounded-2xl
         transition-all
         font-medium
         ${
-          isActive
+          activeSection === section
             ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
             : "text-slate-600 hover:bg-purple-50 hover:text-purple-700"
         }
-      `
-      }
+      `}
     >
       {icon}
       <span>{label}</span>
-    </NavLink>
+    </button>
   );
 }
 
