@@ -46,7 +46,7 @@ function Sidebar({ activeSection, setActiveSection })  {
           />
 
           <SidebarItem
-           section="mock-interviews"
+           section="interviews"
            activeSection={activeSection}
           setActiveSection={setActiveSection}
             icon={<Mic size={20} />}

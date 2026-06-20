@@ -18,7 +18,7 @@ function ResumeAnalyzer() {
   return (
     <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
 
-      <h2 className="text-3xl font-bold text-slate-800">
+      <h2 className="text-2xl font-bold text-slate-800">
         📄 Resume Analyzer
       </h2>
 
@@ -29,7 +29,7 @@ function ResumeAnalyzer() {
             className="
               flex flex-col items-center justify-center
               border-2 border-dashed border-purple-300
-              rounded-3xl
+              rounded-2xl
               py-16
               cursor-pointer
               hover:bg-purple-50

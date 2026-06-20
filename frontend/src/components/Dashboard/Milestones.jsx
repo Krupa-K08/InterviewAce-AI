@@ -1,28 +1,24 @@
 function Milestones() {
   const milestones = [
     {
-      title: "Create Account",
-      completed: true,
+      title: "Resume Uploaded",
+      status: "completed",
     },
     {
-      title: "Set Interview Goal",
-      completed: true,
+      title: "Technical Round 1",
+      status: "active",
     },
     {
-      title: "Upload Resume",
-      completed: false,
+      title: "Technical Round 2",
+      status: "locked",
     },
     {
-      title: "Complete First Mock Interview",
-      completed: false,
+      title: "HR Interview",
+      status: "locked",
     },
     {
-      title: "Reach 80% Readiness",
-      completed: false,
-    },
-    {
-      title: "Maintain 7-Day Streak",
-      completed: true,
+      title: "Offer Preparation",
+      status: "locked",
     },
   ];
 
@@ -34,37 +30,58 @@ function Milestones() {
         border border-slate-200
         shadow-sm
         p-6
-        flex-1
+        w-full
       "
     >
-      <h2 className="text-2xl font-bold text-slate-600">
-        🏆 Milestones
+      <h2 className="text-2xl font-bold text-slate-700">
+        🏆 Journey Progress
       </h2>
 
-      <div className="mt-4 space-y-2">
+      <div className="mt-5 space-y-3">
         {milestones.map((milestone, index) => (
           <div
             key={index}
             className="
               flex items-center justify-between
-              bg-slate-50
-              rounded-xl
-              px-4 py-3
+              rounded-2xl
+              px-5 py-4
+              border
             "
           >
-            <span
-              className={`font-medium ${
-                milestone.completed
-                  ? "text-slate-800"
-                  : "text-slate-500"
-              }`}
-            >
-              {milestone.title}
-            </span>
+            <div>
+              <p className="font-medium text-slate-800">
+                {milestone.title}
+              </p>
+            </div>
 
-            <span className="text-xl">
-              {milestone.completed ? "✅" : "⭕"}
-            </span>
+            <div>
+              {milestone.status === "completed" && (
+                <span className="text-green-600 text-xl">
+                  ✅
+                </span>
+              )}
+
+              {milestone.status === "active" && (
+                <span
+                  className="
+                    px-4 py-1
+                    rounded-full
+                    bg-purple-100
+                    text-purple-700
+                    text-sm
+                    font-semibold
+                  "
+                >
+                  Current
+                </span>
+              )}
+
+              {milestone.status === "locked" && (
+                <span className="text-slate-400 text-xl">
+                  🔒
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>

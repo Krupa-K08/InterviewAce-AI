@@ -8,6 +8,7 @@ import Milestones from "../components/Dashboard/Milestones";
 import QuickActions from "../components/Dashboard/QuickActions";
 import ResumeAnalyzer from "../components/Dashboard/ResumeAnalyzer";
 import CareerRoadmap from "../components/Dashboard/CareerRoadmap";
+import MockInterview from "../components/Dashboard/MockInterview";
 
 function Dashboard() {
   // Temporary mock data
@@ -78,6 +79,10 @@ function Dashboard() {
             ) : activeSection === "roadmaps" ? (
 
               <CareerRoadmap />
+
+            ) : activeSection === "interviews" ? (
+
+              <MockInterview />
 
             ) : (
 
