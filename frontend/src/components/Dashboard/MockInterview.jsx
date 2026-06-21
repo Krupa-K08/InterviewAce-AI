@@ -23,13 +23,25 @@ function MockInterview() {
   const [answer, setAnswer] = useState("");
   const [conversation, setConversation] = useState([]);
 
+  const [interviewCompleted, setInterviewCompleted] = useState(false);
+  const [showTranscript, setShowTranscript] = useState(false);
+  const [startTime, setStartTime] = useState(null);
+  const [duration, setDuration] = useState("");
+
   const textareaRef = useRef(null);
 
   const startInterview = () => {
     if (!selectedCompany) return;
 
     setStarted(true);
+    setInterviewCompleted(false);
+    setShowTranscript(false);
+
     setCurrentQuestion(0);
+    setAnswer("");
+    setConversation([]);
+
+    setStartTime(new Date());
 
     setConversation([
       {
@@ -73,22 +85,28 @@ function MockInterview() {
       });
 
       setCurrentQuestion((prev) => prev + 1);
-    } else {
-      updatedConversation.push({
-        sender: "interviewer",
-        text:
-          "🎉 This interview session is complete. Great job! Your detailed feedback report will be available soon.",
-      });
-    }
 
-    setConversation(updatedConversation);
+      setConversation(updatedConversation);
+    } else {
+      const endTime = new Date();
+
+      const mins = Math.max(
+        1,
+        Math.round((endTime - startTime) / 60000)
+      );
+
+      setDuration(`${mins} min`);
+
+      setConversation(updatedConversation);
+
+      setInterviewCompleted(true);
+    }
 
     setAnswer("");
 
     setTimeout(() => {
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
-        textareaRef.current.focus();
       }
     }, 0);
   };
@@ -164,7 +182,7 @@ function MockInterview() {
         </div>
       )}
 
-      {started && (
+      {started && !interviewCompleted && (
         <>
           <div className="mt-8 space-y-5 max-h-[500px] overflow-y-auto pr-2">
             {conversation.map((message, index) => (
@@ -241,6 +259,120 @@ function MockInterview() {
               Send
             </button>
           </div>
+        </>
+      )}
+
+      {interviewCompleted && (
+        <>
+          {!showTranscript ? (
+            <div
+              className="
+                mt-8
+                bg-purple-50
+                border border-purple-200
+                rounded-3xl
+                p-10
+                text-center
+              "
+            >
+              <div className="text-6xl">
+                🎉
+              </div>
+
+              <h3 className="mt-4 text-3xl font-bold text-slate-800">
+                Interview Completed!
+              </h3>
+
+              <p className="mt-3 text-slate-600">
+                {selectedCompany} Interview
+              </p>
+
+              <p className="mt-2 text-slate-600">
+                Questions Attempted: {questions.length}/{questions.length}
+              </p>
+
+              <p className="mt-2 text-slate-600">
+                Duration: {duration}
+              </p>
+
+              <p className="mt-6 text-slate-500 max-w-xl mx-auto">
+                Transcript is available for review.
+                Your reports and future AI insights
+                will automatically be stored
+                in Analytics.
+              </p>
+
+              <button
+                onClick={() =>
+                  setShowTranscript(true)
+                }
+                className="
+                  mt-8
+                  bg-purple-600
+                  text-white
+                  px-8 py-3
+                  rounded-2xl
+                  hover:bg-purple-700
+                  transition
+                "
+              >
+                View Transcript
+              </button>
+            </div>
+          ) : (
+            <div
+              className="
+                mt-8
+                bg-white
+                rounded-3xl
+                border border-slate-200
+                p-8
+              "
+            >
+              <h3 className="text-3xl font-bold text-slate-800">
+                📝 Interview Transcript
+              </h3>
+
+              <div className="mt-8 space-y-6">
+                {conversation.map((message, index) => (
+                  <div
+                    key={index}
+                    className="
+                      border-b border-slate-100
+                      pb-5
+                    "
+                  >
+                    <div className="font-semibold text-slate-700">
+                      {message.sender === "interviewer"
+                        ? "👨‍💼 Interviewer"
+                        : "🧑 You"}
+                    </div>
+
+                    <p className="mt-2 text-slate-600 whitespace-pre-wrap">
+                      {message.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() =>
+                  setShowTranscript(false)
+                }
+                className="
+                  mt-8
+                  bg-purple-600
+                  text-white
+                  px-8 py-3
+                  rounded-2xl
+                  hover:bg-purple-700
+                  transition
+                "
+              >
+                Hide Transcript
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
