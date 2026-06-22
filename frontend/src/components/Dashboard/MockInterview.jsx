@@ -67,7 +67,7 @@ function MockInterview() {
     setTimeout(autoResize, 0);
   };
 
-  const submitAnswer = () => {
+  const submitAnswer = async () => {
     if (!answer.trim()) return;
 
     const updatedConversation = [
@@ -95,9 +95,42 @@ function MockInterview() {
         Math.round((endTime - startTime) / 60000)
       );
 
-      setDuration(`${mins} min`);
+      const interviewDuration = `${mins} min`;
+
+      setDuration(interviewDuration);
 
       setConversation(updatedConversation);
+
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/interviews",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: null, // connect auth later
+              company: selectedCompany,
+              duration: interviewDuration,
+              transcript: updatedConversation,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to save interview");
+        }
+
+        console.log(
+          "Interview saved successfully ✅"
+        );
+      } catch (error) {
+        console.error(
+          "Error saving interview:",
+          error.message
+        );
+      }
 
       setInterviewCompleted(true);
     }
