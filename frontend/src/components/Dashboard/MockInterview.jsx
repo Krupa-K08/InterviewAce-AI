@@ -9,404 +9,648 @@ function MockInterview() {
     "Infosys",
   ];
 
-  const questions = [
-    "Tell me about yourself.",
-    "Why do you want to join this company?",
-    "Describe a challenging project you worked on.",
-    "What are your strengths and weaknesses?",
-    "Do you have any questions for us?",
-  ];
+  const [selectedCompany, setSelectedCompany] =
+    useState("");
 
-  const [selectedCompany, setSelectedCompany] = useState("");
-  const [started, setStarted] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answer, setAnswer] = useState("");
-  const [conversation, setConversation] = useState([]);
+  const [started, setStarted] =
+    useState(false);
 
-  const [interviewCompleted, setInterviewCompleted] = useState(false);
-  const [showTranscript, setShowTranscript] = useState(false);
-  const [startTime, setStartTime] = useState(null);
-  const [duration, setDuration] = useState("");
+  const [answer, setAnswer] =
+    useState("");
+
+  const [conversation, setConversation] =
+    useState([]);
+
+  const [
+    interviewCompleted,
+    setInterviewCompleted,
+  ] = useState(false);
+
+  const [
+    showTranscript,
+    setShowTranscript,
+  ] = useState(false);
+
+  const [duration, setDuration] =
+    useState("");
+
+  const [startTime, setStartTime] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(false);
 
   const textareaRef = useRef(null);
 
-  const startInterview = () => {
-    if (!selectedCompany) return;
-
-    setStarted(true);
-    setInterviewCompleted(false);
-    setShowTranscript(false);
-
-    setCurrentQuestion(0);
-    setAnswer("");
-    setConversation([]);
-
-    setStartTime(new Date());
-
-    setConversation([
-      {
-        sender: "interviewer",
-        text: questions[0],
-      },
-    ]);
-  };
-
   const autoResize = () => {
-    const textarea = textareaRef.current;
+    const textarea =
+      textareaRef.current;
 
     if (!textarea) return;
 
-    textarea.style.height = "auto";
     textarea.style.height =
-      Math.min(textarea.scrollHeight, 160) + "px";
+      "auto";
+
+    textarea.style.height =
+      Math.min(
+        textarea.scrollHeight,
+        160
+      ) + "px";
   };
 
-  const handleAnswerChange = (e) => {
+  const handleAnswerChange = (
+    e
+  ) => {
     setAnswer(e.target.value);
 
     setTimeout(autoResize, 0);
   };
 
-  const submitAnswer = async () => {
-    if (!answer.trim()) return;
+  //////////////////////////////////
 
-    const updatedConversation = [
-      ...conversation,
-      {
-        sender: "user",
-        text: answer.trim(),
-      },
-    ];
+  const startInterview =
+    async () => {
+      if (!selectedCompany)
+        return;
 
-    if (currentQuestion < questions.length - 1) {
-      updatedConversation.push({
-        sender: "interviewer",
-        text: questions[currentQuestion + 1],
-      });
+      setStarted(true);
 
-      setCurrentQuestion((prev) => prev + 1);
-
-      setConversation(updatedConversation);
-    } else {
-      const endTime = new Date();
-
-      const mins = Math.max(
-        1,
-        Math.round((endTime - startTime) / 60000)
+      setInterviewCompleted(
+        false
       );
 
-      const interviewDuration = `${mins} min`;
+      setShowTranscript(false);
 
-      setDuration(interviewDuration);
+      setConversation([]);
 
-      setConversation(updatedConversation);
+      setAnswer("");
+
+      setStartTime(new Date());
+
+      setLoading(true);
 
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/interviews",
+        const response =
+          await fetch(
+            "http://localhost:5000/api/gemini/ask",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              body: JSON.stringify({
+                company:
+                  selectedCompany,
+
+                conversation:
+                  "Start the interview",
+              }),
+            }
+          );
+
+        const data =
+          await response.json();
+
+        setConversation([
           {
-            method: "POST",
+            sender:
+              "interviewer",
+
+            text:
+              data.reply,
+          },
+        ]);
+      } catch (err) {
+        console.log(err);
+      }
+
+      setLoading(false);
+    };
+
+  //////////////////////////////////
+
+  const submitAnswer =
+    async () => {
+      if (
+        !answer.trim()
+      )
+        return;
+
+      const updated =
+        [
+          ...conversation,
+
+          {
+            sender:
+              "user",
+
+            text:
+              answer.trim(),
+          },
+        ];
+
+      setConversation(updated);
+
+      setAnswer("");
+
+      setLoading(true);
+
+      try {
+        const response =
+          await fetch(
+            "http://localhost:5000/api/gemini/ask",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              body: JSON.stringify({
+                company:
+                  selectedCompany,
+
+                conversation:
+                  updated
+                    .map(
+                      (
+                        msg
+                      ) =>
+                        `${msg.sender}: ${msg.text}`
+                    )
+                    .join(
+                      "\n"
+                    ),
+              }),
+            }
+          );
+
+        const data =
+          await response.json();
+
+        setConversation([
+          ...updated,
+
+          {
+            sender:
+              "interviewer",
+
+            text:
+              data.reply,
+          },
+        ]);
+      } catch (err) {
+        console.log(err);
+      }
+
+      setLoading(false);
+
+      if (
+        textareaRef.current
+      ) {
+        textareaRef.current.style.height =
+          "auto";
+      }
+    };
+
+  //////////////////////////////////
+
+  const endInterview =
+    async () => {
+      const endTime =
+        new Date();
+
+      const mins =
+        Math.max(
+          1,
+
+          Math.round(
+            (
+              endTime -
+              startTime
+            ) /
+              60000
+          )
+        );
+
+      const interviewDuration =
+        `${mins} min`;
+
+      setDuration(
+        interviewDuration
+      );
+
+      try {
+        await fetch(
+          "http://localhost:5000/api/interviews",
+
+          {
+            method:
+              "POST",
+
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type":
+                "application/json",
             },
-            body: JSON.stringify({
-              userId: null, // connect auth later
-              company: selectedCompany,
-              duration: interviewDuration,
-              transcript: updatedConversation,
-            }),
+
+            body: JSON.stringify(
+              {
+                userId:
+                  null,
+
+                company:
+                  selectedCompany,
+
+                duration:
+                  interviewDuration,
+
+                transcript:
+                  conversation,
+              }
+            ),
           }
         );
-
-        if (!response.ok) {
-          throw new Error("Failed to save interview");
-        }
-
-        console.log(
-          "Interview saved successfully ✅"
-        );
-      } catch (error) {
-        console.error(
-          "Error saving interview:",
-          error.message
-        );
+      } catch (err) {
+        console.log(err);
       }
 
-      setInterviewCompleted(true);
-    }
+      setInterviewCompleted(
+        true
+      );
+    };
 
-    setAnswer("");
+  //////////////////////////////////
 
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
+  const handleKeyDown =
+    (e) => {
+      if (
+        e.key ===
+          "Enter" &&
+        !e.shiftKey
+      ) {
+        e.preventDefault();
+
+        submitAnswer();
       }
-    }, 0);
-  };
-
-  const handleKeyDown = (e) => {
-    /*
-      Enter → Send
-      Shift + Enter → New Line
-    */
-
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      submitAnswer();
-    }
-  };
+    };
 
   return (
     <div
       className="
-        bg-white
-        rounded-3xl
-        border border-slate-200
-        shadow-sm
-        p-8
-      "
+bg-white
+rounded-3xl
+border
+border-slate-200
+shadow-sm
+p-8
+"
     >
-      <h2 className="text-3xl font-bold text-slate-800">
-        🎤 Mock Interviews
+      <h2
+        className="
+text-3xl
+font-bold
+text-slate-800
+"
+      >
+        🎤 Mock
+        Interviews
       </h2>
 
       {!started && (
-        <div className="mt-6 flex flex-col md:flex-row gap-4">
+        <div
+          className="
+mt-6
+flex
+flex-col
+md:flex-row
+gap-4
+"
+        >
           <select
-            value={selectedCompany}
-            onChange={(e) =>
-              setSelectedCompany(e.target.value)
+            value={
+              selectedCompany
+            }
+            onChange={(
+              e
+            ) =>
+              setSelectedCompany(
+                e.target
+                  .value
+              )
             }
             className="
-              flex-1
-              border border-slate-300
-              rounded-2xl
-              px-5 py-3
-              text-slate-700
-              focus:outline-none
-              focus:ring-2
-              focus:ring-purple-500
-            "
+flex-1
+border
+border-slate-300
+rounded-2xl
+px-5
+py-3
+"
           >
             <option value="">
-              Choose Company
+              Choose
+              Company
             </option>
 
-            {companies.map((company) => (
-              <option key={company}>
-                {company}
-              </option>
-            ))}
+            {companies.map(
+              (
+                company
+              ) => (
+                <option
+                  key={
+                    company
+                  }
+                >
+                  {
+                    company
+                  }
+                </option>
+              )
+            )}
           </select>
 
           <button
-            onClick={startInterview}
+            onClick={
+              startInterview
+            }
             className="
-              bg-purple-600
-              text-white
-              px-8 py-3
-              rounded-2xl
-              hover:bg-purple-700
-              transition
-            "
+bg-purple-600
+text-white
+px-8
+py-3
+rounded-2xl
+"
           >
-            Start Interview
+            Start
+            Interview
           </button>
         </div>
       )}
 
-      {started && !interviewCompleted && (
-        <>
-          <div className="mt-8 space-y-5 max-h-[500px] overflow-y-auto pr-2">
-            {conversation.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${
-                  message.sender === "interviewer"
-                    ? "justify-start"
-                    : "justify-end"
-                }`}
-              >
-                <div
-                  className={`
-                    max-w-[75%]
-                    px-5 py-4
-                    rounded-2xl
-                    ${
-                      message.sender === "interviewer"
-                        ? "bg-slate-100 text-slate-800"
-                        : "bg-purple-600 text-white"
-                    }
-                  `}
-                >
-                  <div className="font-semibold mb-2">
-                    {message.sender === "interviewer"
-                      ? "👨‍💼 Interviewer"
-                      : "🧑 You"}
-                  </div>
-
-                  <p className="whitespace-pre-wrap">
-                    {message.text}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 flex gap-4 items-end">
-            <textarea
-              ref={textareaRef}
-              placeholder="Type your answer..."
-              value={answer}
-              onChange={handleAnswerChange}
-              onKeyDown={handleKeyDown}
+      {started &&
+        !interviewCompleted && (
+          <>
+            <div
               className="
-                flex-1
-                border border-slate-300
-                rounded-2xl
-                px-5 py-3
-                text-slate-700
-                placeholder:text-slate-400
-                resize-none
-                overflow-y-auto
-                min-h-[52px]
-                max-h-[160px]
-                focus:outline-none
-                focus:ring-2
-                focus:ring-purple-500
-              "
-            />
-
-            <button
-              onClick={submitAnswer}
-              className="
-                bg-purple-600
-                text-white
-                px-8 py-3
-                rounded-2xl
-                hover:bg-purple-700
-                transition
-                h-[52px]
-              "
+mt-6
+flex
+justify-between
+"
             >
-              Send
-            </button>
-          </div>
-        </>
-      )}
+              <div>
+                <span
+                  className="
+font-semibold
+"
+                >
+                  Company:
+                </span>{" "}
+                {
+                  selectedCompany
+                }
+              </div>
+
+              <button
+                onClick={
+                  endInterview
+                }
+                className="
+bg-red-500
+text-white
+px-5
+py-2
+rounded-xl
+"
+              >
+                End
+                Interview
+              </button>
+            </div>
+
+            <div
+              className="
+mt-8
+space-y-5
+max-h-[500px]
+overflow-y-auto
+"
+            >
+              {conversation.map(
+                (
+                  message,
+                  index
+                ) => (
+                  <div
+                    key={
+                      index
+                    }
+                    className={`flex ${
+                      message.sender ===
+                      "interviewer"
+                        ? "justify-start"
+                        : "justify-end"
+                    }`}
+                  >
+                    <div
+                      className={`
+
+max-w-[75%]
+
+px-5
+
+py-4
+
+rounded-2xl
+
+${
+  message.sender ===
+  "interviewer"
+    ? "bg-slate-100 text-slate-800"
+    : "bg-purple-600 text-white"
+}
+`}
+                    >
+                      <div
+                        className="
+font-semibold
+mb-2
+"
+                      >
+                        {message.sender ===
+                        "interviewer"
+                          ? "👨‍💼 Interviewer"
+                          : "🧑 You"}
+                      </div>
+
+                      <p>
+                        {
+                          message.text
+                        }
+                      </p>
+                    </div>
+                  </div>
+                )
+              )}
+
+              {loading && (
+                <div
+                  className="
+text-slate-500
+"
+                >
+                  Gemini is
+                  thinking...
+                </div>
+              )}
+            </div>
+
+            <div
+              className="
+mt-8
+flex
+gap-4
+"
+            >
+              <textarea
+                ref={
+                  textareaRef
+                }
+                value={
+                  answer
+                }
+                onChange={
+                  handleAnswerChange
+                }
+                onKeyDown={
+                  handleKeyDown
+                }
+                placeholder="Type your answer..."
+                className="
+flex-1
+border
+rounded-2xl
+px-5
+py-3
+resize-none
+min-h-[52px]
+max-h-[160px]
+"
+              />
+
+              <button
+                onClick={
+                  submitAnswer
+                }
+                className="
+bg-purple-600
+text-white
+px-8
+rounded-2xl
+"
+              >
+                Send
+              </button>
+            </div>
+          </>
+        )}
 
       {interviewCompleted && (
-        <>
-          {!showTranscript ? (
+        <div
+          className="
+mt-8
+bg-purple-50
+rounded-3xl
+p-10
+text-center
+"
+        >
+          <h2
+            className="
+text-3xl
+font-bold
+"
+          >
+            🎉
+            Interview
+            Completed
+          </h2>
+
+          <p
+            className="
+mt-4
+"
+          >
+            {
+              selectedCompany
+            }
+          </p>
+
+          <p>
+            Duration:
+            {" "}
+            {duration}
+          </p>
+
+          <button
+            onClick={() =>
+              setShowTranscript(
+                !showTranscript
+              )
+            }
+            className="
+mt-6
+bg-purple-600
+text-white
+px-8
+py-3
+rounded-2xl
+"
+          >
+            {showTranscript
+              ? "Hide Transcript"
+              : "View Transcript"}
+          </button>
+
+          {showTranscript && (
             <div
               className="
-                mt-8
-                bg-purple-50
-                border border-purple-200
-                rounded-3xl
-                p-10
-                text-center
-              "
+mt-8
+space-y-5
+text-left
+"
             >
-              <div className="text-6xl">
-                🎉
-              </div>
-
-              <h3 className="mt-4 text-3xl font-bold text-slate-800">
-                Interview Completed!
-              </h3>
-
-              <p className="mt-3 text-slate-600">
-                {selectedCompany} Interview
-              </p>
-
-              <p className="mt-2 text-slate-600">
-                Questions Attempted: {questions.length}/{questions.length}
-              </p>
-
-              <p className="mt-2 text-slate-600">
-                Duration: {duration}
-              </p>
-
-              <p className="mt-6 text-slate-500 max-w-xl mx-auto">
-                Transcript is available for review.
-                Your reports and future AI insights
-                will automatically be stored
-                in Analytics.
-              </p>
-
-              <button
-                onClick={() =>
-                  setShowTranscript(true)
-                }
-                className="
-                  mt-8
-                  bg-purple-600
-                  text-white
-                  px-8 py-3
-                  rounded-2xl
-                  hover:bg-purple-700
-                  transition
-                "
-              >
-                View Transcript
-              </button>
-            </div>
-          ) : (
-            <div
-              className="
-                mt-8
-                bg-white
-                rounded-3xl
-                border border-slate-200
-                p-8
-              "
-            >
-              <h3 className="text-3xl font-bold text-slate-800">
-                📝 Interview Transcript
-              </h3>
-
-              <div className="mt-8 space-y-6">
-                {conversation.map((message, index) => (
+              {conversation.map(
+                (
+                  msg,
+                  i
+                ) => (
                   <div
-                    key={index}
-                    className="
-                      border-b border-slate-100
-                      pb-5
-                    "
+                    key={
+                      i
+                    }
                   >
-                    <div className="font-semibold text-slate-700">
-                      {message.sender === "interviewer"
+                    <strong>
+                      {msg.sender ===
+                      "interviewer"
                         ? "👨‍💼 Interviewer"
                         : "🧑 You"}
-                    </div>
+                    </strong>
 
-                    <p className="mt-2 text-slate-600 whitespace-pre-wrap">
-                      {message.text}
+                    <p>
+                      {
+                        msg.text
+                      }
                     </p>
                   </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() =>
-                  setShowTranscript(false)
-                }
-                className="
-                  mt-8
-                  bg-purple-600
-                  text-white
-                  px-8 py-3
-                  rounded-2xl
-                  hover:bg-purple-700
-                  transition
-                "
-              >
-                Hide Transcript
-              </button>
+                )
+              )}
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

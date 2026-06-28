@@ -1,24 +1,29 @@
 const express = require("express");
-const Interview = require("../models/Interview");
 
 const router = express.Router();
 
 const {
-generateResponse
+  generateResponse,
 } = require("../services/geminiService");
 
+const Feedback =
+require("../models/Feedback");
 
-router.post("/", async (req,res)=>{
+router.post(
+
+"/generate-feedback",
+
+async(req,res)=>{
 
 try{
 
-const {
-userId,
-company,
-duration,
-transcript
-}=req.body;
+const{
 
+company,
+
+transcript
+
+}=req.body;
 
 const prompt = `
 
@@ -81,37 +86,62 @@ ${JSON.stringify(transcript)}
 `;
 
 let feedback =
+
 await generateResponse(prompt);
 
-
 feedback = feedback
+
 .replace(/```json/g,"")
+
 .replace(/```/g,"")
+
 .trim();
 
-
 feedback =
+
 JSON.parse(feedback);
 
+const savedFeedback =
 
-
-const interview =
-await Interview.create({
-
-userId,
+await Feedback.create({
 
 company,
 
-duration,
+overallScore:
+feedback.overallScore,
 
-transcript,
+communication:
+feedback.communication,
 
-feedback
+technicalKnowledge:
+feedback.technicalKnowledge,
+
+confidence:
+feedback.confidence,
+
+problemSolving:
+feedback.problemSolving,
+
+strengths:
+feedback.strengths,
+
+weaknesses:
+feedback.weaknesses,
+
+recommendation:
+feedback.recommendation,
+
+transcript
 
 });
 
+res.json({
 
-res.status(201).json(interview);
+success:true,
+
+feedback:savedFeedback
+
+});
 
 }
 
@@ -121,93 +151,19 @@ console.log(error);
 
 res.status(500).json({
 
-message:
-"Failed to save interview"
-
-});
-
-}
-
-});
-
-
-
-router.get("/", async(req,res)=>{
-
-try{
-
-const interviews =
-await Interview.find()
-
-.sort({
-
-createdAt:-1
-
-});
-
-res.json(interviews);
-
-}
-
-catch(error){
-
-console.log(error);
-
-res.status(500).json({
+success:false,
 
 message:
-"Failed to fetch interviews"
+"Failed to generate feedback",
+
+error:error.message
 
 });
 
 }
 
-});
-
-
-
-router.get("/:id",async(req,res)=>{
-
-try{
-
-const interview =
-await Interview.findById(
-
-req.params.id
+}
 
 );
-
-
-if(!interview){
-
-return res.status(404).json({
-
-message:
-"Interview not found"
-
-});
-
-}
-
-
-res.json(interview);
-
-}
-
-catch(error){
-
-console.log(error);
-
-res.status(500).json({
-
-message:
-"Failed to fetch interview"
-
-});
-
-}
-
-});
-
 
 module.exports = router;
